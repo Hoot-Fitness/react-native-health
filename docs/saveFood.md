@@ -16,7 +16,7 @@ let options = {
     calcium : 0.1 // Optional
     carbohydrates : 0.1 // Optional
     chloride : 0.1 // Optional
-    cholesterol : 0.1 // Optional
+    cholesterol : 100 // Optional, in milligrams (mg)
     copper : 0.1 // Optional
     energy : 0.1 // Optional
     fatMonounsaturated : 0.1 // Optional
@@ -37,7 +37,7 @@ let options = {
     protein : 0.1 // Optional
     riboflavin : 0.1 // Optional
     selenium : 0.1 // Optional
-    sodium : 0.1 // Optional
+    sodium : 500 // Optional, in milligrams (mg)
     sugar : 0.1 // Optional
     thiamin : 0.1 // Optional
     vitaminA : 0.1 // Optional

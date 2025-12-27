@@ -236,7 +236,7 @@
     }
     if (cholesterolValue > 0){
         HKQuantitySample* cholesterol = [HKQuantitySample quantitySampleWithType:[HKQuantityType quantityTypeForIdentifier:HKQuantityTypeIdentifierDietaryCholesterol]
-                                                                quantity:[HKQuantity quantityWithUnit:[HKUnit gramUnit] doubleValue:cholesterolValue]
+                                                                quantity:[HKQuantity quantityWithUnit:[HKUnit gramUnitWithMetricPrefix:HKMetricPrefixMilli] doubleValue:cholesterolValue]
                                                                 startDate:timeFoodWasConsumed
                                                                     endDate:timeFoodWasConsumed
                                                                 metadata:metadata];
@@ -404,7 +404,7 @@
     }
     if (sodiumValue > 0){
         HKQuantitySample* sodium = [HKQuantitySample quantitySampleWithType:[HKQuantityType quantityTypeForIdentifier:HKQuantityTypeIdentifierDietarySodium]
-                                                                    quantity:[HKQuantity quantityWithUnit:[HKUnit gramUnit] doubleValue:sodiumValue]
+                                                                    quantity:[HKQuantity quantityWithUnit:[HKUnit gramUnitWithMetricPrefix:HKMetricPrefixMilli] doubleValue:sodiumValue]
                                                                     startDate:timeFoodWasConsumed
                                                                         endDate:timeFoodWasConsumed
                                                                     metadata:metadata];
