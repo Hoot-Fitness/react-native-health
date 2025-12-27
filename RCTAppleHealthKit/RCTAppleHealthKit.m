@@ -351,6 +351,12 @@ RCT_EXPORT_METHOD(saveFood:(NSDictionary *)input callback:(RCTResponseSenderBloc
     [self saveFood:input callback:callback];
 }
 
+RCT_EXPORT_METHOD(deleteFood:(NSString *)oid callback:(RCTResponseSenderBlock)callback)
+{
+    [self _initializeHealthStore];
+    [self deleteFood:oid callback:callback];
+}
+
 RCT_EXPORT_METHOD(saveWater:(NSDictionary *)input callback:(RCTResponseSenderBlock)callback)
 {
     [self _initializeHealthStore];

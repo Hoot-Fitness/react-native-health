@@ -11,6 +11,7 @@
 @interface RCTAppleHealthKit (Methods_Dietary)
 
 - (void)saveFood:(NSDictionary *)input callback:(RCTResponseSenderBlock)callback;
+- (void)deleteFood:(NSString *)oid callback:(RCTResponseSenderBlock)callback;
 
 - (void)saveWater:(NSDictionary *)input callback:(RCTResponseSenderBlock)callback;
 - (void)getWater:(NSDictionary *)input callback:(RCTResponseSenderBlock)callback;

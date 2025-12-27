@@ -54,17 +54,20 @@ let options = {
 Call the method:
 
 ```javascript
-AppleHealthKit.saveFood((options: Object), (err: Object, results: number) => {
+AppleHealthKit.saveFood((options: Object), (err: Object, result: string) => {
   if (err) {
     console.log('Error saving food to Healthkit: ', err)
     return
   }
-  // food saved successfully
+  // food saved successfully, result contains the UUID
+  console.log(result)
 })
 ```
 
-Example output:
+Example output (record's UUID):
 
 ```json
-16.7
+"ba13089a-a311-4ffe-9352-f5c568936f16"
 ```
+
+The returned UUID can be used with `deleteFood` to remove the food entry.
