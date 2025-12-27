@@ -17,17 +17,19 @@ let options = {
 Call the method:
 
 ```javascript
-AppleHealthKit.saveWater((options: Object), (err: Object, results: boolean) => {
+AppleHealthKit.saveWater((options: Object), (err: Object, result: string) => {
   if (err) {
     console.log('Error saving water to Healthkit: ', err)
     return
   }
   // water successfully saved
+  // result contains the UUID of the saved water entry
+  console.log(result)
 })
 ```
 
-Example output:
+Example output (UUID of the saved entry):
 
 ```json
-1
+"ba13089a-a311-4ffe-9352-f5c568936f16"
 ```

@@ -232,7 +232,12 @@ declare module 'react-native-health' {
 
     saveWater(
       options: HealthValueOptions,
-      callback: (error: string, result: HealthValue) => void,
+      callback: (error: string, result: string) => void,
+    ): void
+
+    deleteWater(
+      id: string,
+      callback: (error: string, result: number) => void,
     ): void
 
     getWater(

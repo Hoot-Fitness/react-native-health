@@ -526,7 +526,7 @@
             callback(@[RCTMakeError(@"An error occured saving the water sample", error, nil)]);
             return;
         }
-        callback(@[[NSNull null], @true]);
+        callback(@[[NSNull null], [water.UUID UUIDString]]);
     }];
 }
 
@@ -648,6 +648,56 @@
                 return;
             }
             callback(@[[NSNull null], @(objectsToDelete.count)]);
+        }];
+    }];
+    
+    [self.healthStore executeQuery:query];
+}
+
+- (void)deleteWater:(NSString *)oid callback:(RCTResponseSenderBlock)callback
+{
+    // Validate the input ID
+    if (oid == nil || [oid length] == 0) {
+        callback(@[RCTMakeError(@"Invalid water ID: ID cannot be null or empty", nil, nil)]);
+        return;
+    }
+    
+    NSUUID *uuid = [[NSUUID alloc] initWithUUIDString:oid];
+    if (uuid == nil) {
+        callback(@[RCTMakeError(@"Invalid water ID: ID is not a valid UUID format", nil, nil)]);
+        return;
+    }
+    
+    HKQuantityType *waterType = [HKQuantityType quantityTypeForIdentifier:HKQuantityTypeIdentifierDietaryWater];
+    NSPredicate *uuidPredicate = [HKQuery predicateForObjectWithUUID:uuid];
+    
+    // Query for the water sample
+    HKSampleQuery *query = [[HKSampleQuery alloc] initWithSampleType:waterType
+                                                           predicate:uuidPredicate
+                                                               limit:1
+                                                     sortDescriptors:nil
+                                                      resultsHandler:^(HKSampleQuery * _Nonnull query, NSArray<__kindof HKSample *> * _Nullable results, NSError * _Nullable error) {
+        if (error) {
+            NSLog(@"An error occurred while querying the water sample %@. The error was: %@", oid, error);
+            callback(@[RCTMakeError(@"An error occurred while querying the water sample", error, nil)]);
+            return;
+        }
+        
+        if (results.count == 0) {
+            callback(@[RCTMakeError(@"No water sample found with the given ID", nil, nil)]);
+            return;
+        }
+        
+        HKQuantitySample *waterSample = (HKQuantitySample *)results.firstObject;
+        
+        // Delete the water sample
+        [self.healthStore deleteObject:waterSample withCompletion:^(BOOL success, NSError * _Nullable deleteError) {
+            if (!success) {
+                NSLog(@"An error occurred while deleting the water sample %@. The error was: %@", oid, deleteError);
+                callback(@[RCTMakeError(@"An error occurred while deleting the water sample", deleteError, nil)]);
+                return;
+            }
+            callback(@[[NSNull null], @(1)]);
         }];
     }];
     
