@@ -1,0 +1,126 @@
+# React Native Health - Cursor Rules
+
+## Project Overview
+
+This is a **fork** of
+[react-native-health](https://github.com/agencyenterprise/react-native-health)
+by Agency Enterprise, which is not very well maintained. We are maintaining this
+fork for use in our app **Hoot** (located at
+`/Users/rossfishkind/Development/hoot-fitness/projects/mobile-app`).
+
+### Purpose
+
+This React Native package provides **Apple HealthKit** integration for iOS
+applications. It allows reading and writing health & fitness data from Apple's
+HealthKit framework.
+
+### Platform Support
+
+- **iOS only** - This package does not support Android
+- For Android, a separate package like
+  [react-native-health-connect](https://github.com/matinzd/react-native-health-connect)
+  should be used
+
+---
+
+## Codebase Architecture
+
+### Native Code (Objective-C)
+
+The native iOS bridge is written entirely in **Objective-C** (not Swift). All
+native source files are located in the `RCTAppleHealthKit/` directory:
+
+```
+RCTAppleHealthKit/
+├── RCTAppleHealthKit.h/m              # Main module entry point
+├── RCTAppleHealthKit+Methods_*.h/m    # Category extensions for different health domains
+│   ├── Methods_Activity               # Active energy, basal energy, stand time
+│   ├── Methods_Body                   # Weight, height, body fat, BMI, etc.
+│   ├── Methods_Characteristic         # Biological sex, date of birth
+│   ├── Methods_ClinicalRecords        # Clinical health records
+│   ├── Methods_Dietary                # Food, water, nutrition data
+│   ├── Methods_Fitness                # Steps, distance, flights climbed
+│   ├── Methods_Hearing                # Audio exposure
+│   ├── Methods_LabTests               # Blood glucose, blood alcohol
+│   ├── Methods_Mindfulness            # Mindful sessions
+│   ├── Methods_Results                # General result handling
+│   ├── Methods_Sleep                  # Sleep analysis
+│   ├── Methods_Summary                # Activity summaries
+│   ├── Methods_Vitals                 # Heart rate, blood pressure, respiratory
+│   └── Methods_Workout                # Workout sessions and routes
+├── RCTAppleHealthKit+Queries.h/m      # HealthKit query builders
+├── RCTAppleHealthKit+TypesAndPermissions.h/m  # Permission & type mappings
+└── RCTAppleHealthKit+Utils.h/m        # Utility functions
+```
+
+### JavaScript/TypeScript Layer
+
+- `index.js` - Main entry point, exports the native module with constants
+- `index.d.ts` - TypeScript type definitions for the entire API
+- `src/constants/` - JavaScript constants for Activities, Observers,
+  Permissions, Units
+
+### Key Files
+
+- `RNAppleHealthKit.podspec` - CocoaPods specification for iOS integration
+- `app.plugin.js` - Expo config plugin for managed workflow
+
+---
+
+## Development Guidelines
+
+### When Adding New HealthKit Features
+
+1. **Native Side (Objective-C)**:
+   - Add new methods to the appropriate `RCTAppleHealthKit+Methods_*.m` category
+   - Update `RCTAppleHealthKit+TypesAndPermissions.m` if adding new data types
+   - Follow the existing callback pattern: `(RCTResponseSenderBlock)callback`
+
+2. **JavaScript Side**:
+   - Add TypeScript types to `index.d.ts`
+   - Add new permissions/constants to `src/constants/` if needed
+
+3. **Documentation**:
+   - Add a new markdown file to `docs/` following existing patterns
+   - Update `README.md` documentation section
+
+### Objective-C Patterns Used
+
+- Uses React Native's `RCTBridgeModule` protocol
+- Extends `RCTEventEmitter` for background observer events
+- Heavy use of Objective-C categories (`+Methods_*`) for code organization
+- HKHealthStore singleton pattern for HealthKit access
+
+### Testing
+
+- Test changes against the `example/` app in the repository
+- Always test on a real iOS device (HealthKit is limited in Simulator)
+
+---
+
+## Important Notes
+
+- The upstream repo mentioned plans to rewrite in Swift (August 2023) but this
+  hasn't happened
+- Background observers require special setup in `AppDelegate.m`
+- Apple's privacy model means denied permissions cannot be re-prompted; users
+  must go to Settings
+- This package requires the HealthKit capability to be enabled in Xcode
+- info.plist must include appropriate usage description keys
+  (NSHealthShareUsageDescription, NSHealthUpdateUsageDescription)
+
+---
+
+## Related Projects
+
+- **Hoot Mobile App**:
+  `/Users/rossfishkind/Development/hoot-fitness/projects/mobile-app`
+  - This fork is maintained specifically for Hoot's HealthKit integration needs
+
+---
+
+## References
+
+- [Apple HealthKit Documentation](https://developer.apple.com/documentation/healthkit)
+- [Upstream Repository](https://github.com/agencyenterprise/react-native-health)
+- [React Native Native Modules (iOS)](https://reactnative.dev/docs/native-modules-ios)
