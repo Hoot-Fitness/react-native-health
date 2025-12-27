@@ -601,17 +601,57 @@
 
 - (void)deleteFood:(NSString *)oid callback:(RCTResponseSenderBlock)callback
 {
-    HKCorrelationType *foodType = [HKCorrelationType correlationTypeForIdentifier:HKCorrelationTypeIdentifierFood];
+    // Validate the input ID
+    if (oid == nil || [oid length] == 0) {
+        callback(@[RCTMakeError(@"Invalid food ID: ID cannot be null or empty", nil, nil)]);
+        return;
+    }
+    
     NSUUID *uuid = [[NSUUID alloc] initWithUUIDString:oid];
+    if (uuid == nil) {
+        callback(@[RCTMakeError(@"Invalid food ID: ID is not a valid UUID format", nil, nil)]);
+        return;
+    }
+    
+    HKCorrelationType *foodType = [HKCorrelationType correlationTypeForIdentifier:HKCorrelationTypeIdentifierFood];
     NSPredicate *uuidPredicate = [HKQuery predicateForObjectWithUUID:uuid];
-    [self.healthStore deleteObjectsOfType:foodType predicate:uuidPredicate withCompletion:^(BOOL success, NSUInteger deletedObjectCount, NSError * _Nullable error) {
-        if (!success) {
-            NSLog(@"An error occured while deleting the food sample %@. The error was: ", error);
-            callback(@[RCTMakeError(@"An error occured while deleting the food sample", error, nil)]);
+    
+    // First, query for the correlation to get its contained samples
+    HKSampleQuery *query = [[HKSampleQuery alloc] initWithSampleType:foodType
+                                                           predicate:uuidPredicate
+                                                               limit:1
+                                                     sortDescriptors:nil
+                                                      resultsHandler:^(HKSampleQuery * _Nonnull query, NSArray<__kindof HKSample *> * _Nullable results, NSError * _Nullable error) {
+        if (error) {
+            NSLog(@"An error occurred while querying the food sample %@. The error was: %@", oid, error);
+            callback(@[RCTMakeError(@"An error occurred while querying the food sample", error, nil)]);
             return;
         }
-        callback(@[[NSNull null], @(deletedObjectCount)]);
+        
+        if (results.count == 0) {
+            callback(@[RCTMakeError(@"No food sample found with the given ID", nil, nil)]);
+            return;
+        }
+        
+        HKCorrelation *foodCorrelation = (HKCorrelation *)results.firstObject;
+        NSSet<HKSample *> *containedSamples = foodCorrelation.objects;
+        
+        // Create a mutable set of all objects to delete (correlation + its samples)
+        NSMutableArray<HKObject *> *objectsToDelete = [NSMutableArray arrayWithObject:foodCorrelation];
+        [objectsToDelete addObjectsFromArray:[containedSamples allObjects]];
+        
+        // Delete all objects (correlation and its contained samples)
+        [self.healthStore deleteObjects:objectsToDelete withCompletion:^(BOOL success, NSError * _Nullable deleteError) {
+            if (!success) {
+                NSLog(@"An error occurred while deleting the food sample %@. The error was: %@", oid, deleteError);
+                callback(@[RCTMakeError(@"An error occurred while deleting the food sample", deleteError, nil)]);
+                return;
+            }
+            callback(@[[NSNull null], @(objectsToDelete.count)]);
+        }];
     }];
+    
+    [self.healthStore executeQuery:query];
 }
 
 @end
