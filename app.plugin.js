@@ -29,23 +29,25 @@ const withHealthKit = (
   })
 
   // Add entitlements. These are automatically synced when using EAS build for production apps.
+  // Only add com.apple.developer.healthkit.access when isClinicalDataEnabled - it requires
+  // Apple approval and will fail the build if included without approval.
   config = withEntitlementsPlist(config, (config) => {
     config.modResults['com.apple.developer.healthkit'] = true
-    if (
-      !Array.isArray(config.modResults['com.apple.developer.healthkit.access'])
-    ) {
-      config.modResults['com.apple.developer.healthkit.access'] = []
-    }
 
     if (isClinicalDataEnabled) {
+      if (
+        !Array.isArray(config.modResults['com.apple.developer.healthkit.access'])
+      ) {
+        config.modResults['com.apple.developer.healthkit.access'] = []
+      }
       config.modResults['com.apple.developer.healthkit.access'].push(
         'health-records',
       )
-
-      // Remove duplicates
       config.modResults['com.apple.developer.healthkit.access'] = [
         ...new Set(config.modResults['com.apple.developer.healthkit.access']),
       ]
+    } else {
+      delete config.modResults['com.apple.developer.healthkit.access']
     }
 
     return config
